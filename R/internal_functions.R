@@ -7,7 +7,7 @@ get_slope <- function(vec) {
 }
 
 #' @importFrom glue glue
-#' @importFrom dplyr rowwise mutate select bind_cols
+#' @importFrom dplyr rowwise mutate select bind_cols c_across
 #' @importFrom stats sd
 featurize_df <- function(X_df, returned_object, verbose) {
   n_intervals <- length(returned_object$intervals$start)
@@ -23,9 +23,9 @@ featurize_df <- function(X_df, returned_object, verbose) {
     restricted_df <- X_df[,interval_start:interval_end]
     features <- restricted_df %>%
       dplyr::rowwise() %>%
-      dplyr::mutate(mean = mean(c_across(everything())),
-             sd = stats::sd(c_across(everything())),
-             slope = get_slope(c_across(everything()))) %>%
+      dplyr::mutate(mean = mean(dplyr::c_across(everything())),
+             sd = stats::sd(dplyr::c_across(everything())),
+             slope = get_slope(dplyr::c_across(everything()))) %>%
       dplyr::select(mean, sd, slope)
     colnames(features) <- paste0("X",k,"_",c("mean","sd","slope"))
     all_features[[k]] <- features
