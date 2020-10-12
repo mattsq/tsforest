@@ -31,3 +31,17 @@ devtools::install_github("mattsq/tsforest")
 
 This is still very much a work in progress! Eventually I'd like to S3-ize the model objects, build tests and example data, and in general make it a more properly-featured model package.
 
+## Usage
+
+The package is pretty easy to use! Here's a simple example:
+
+```{r}
+library(tsforest)
+data("LargeKitchenAppliances_TRAIN")
+data("LargeKitchenAppliances_TEST")
+model <- tsforest(LargeKitchenAppliances_TRAIN)
+preds <- predict_tsforest(model, LargeKitchenAppliances_TEST)
+table(preds$predictions, LargeKitchenAppliances_TEST$target)
+```
+
+
