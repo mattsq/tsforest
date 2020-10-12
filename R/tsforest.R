@@ -102,3 +102,40 @@ predict_tsforest <- function(model,
   }
   return(preds)
 }
+
+#' @importFrom dplyr bind_rows
+#' @importFrom ggplot2 ggplot aes geom_linerange
+intervalwise_variable_importance <- function(model, ...) {
+  if(model$ranger_model$importance.mode == "none") {
+    stop("Can only be passed if trained with variable importance.")
+  }
+  scores <- model$ranger_model$variable.importance
+  mean_scores <- scores[grep("mean", names(scores))]
+  sd_scores <- scores[grep("sd", names(scores))]
+  slope_scores <- scores[grep("slope", names(scores))]
+
+  overall_tibble <- dplyr::bind_rows(
+    scores_to_tibble(mean_scores),
+    scores_to_tibble(sd_scores),
+    scores_to_tibble(slope_scores)
+  )
+
+  overall_tibble %>%
+    ggplot2::ggplot(ggplot2::aes(y = importance, color = Type)) +
+    ggplot2::geom_linerange(ggplot2::aes(xmin = From, xmax = To))
+}
+
+#' @importFrom tibble rownames_to_column
+#' @importFrom stringr str_extract str_remove_all str_remove
+scores_to_tibble <- function(scores) {
+  scores_df <- data.frame(
+    importance = scores
+  ) %>%
+    tibble::rownames_to_column() %>%
+    dplyr::mutate(From = stringr::str_extract(rowname, "From\\d+To"),
+                  To = stringr::str_extract(rowname, "To\\d+$"),
+                  From = stringr::str_remove_all(From, "From|To") %>% as.numeric(),
+                  To = stringr::str_remove_all(To, "To") %>% as.numeric(),
+                  Type = stringr::str_extract(rowname, "\\w+_\\d+") %>% stringr::str_remove("_\\d+"))
+  return(scores_df)
+}
