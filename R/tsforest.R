@@ -51,7 +51,9 @@ tsforest <- function(df,
   returned_object$intervals$start <- sample(1:(ncol(X_df)-min_length), n_intervals)
   returned_object$intervals$end <- purrr::map_dbl(returned_object$intervals$start, ~ sample((.x):ncol(X_df), 1))
 
-  featurized_df <- featurize_df(X_df = X_df, returned_object = returned_object)
+  featurized_df <- featurize_df(X_df = X_df,
+                                returned_object = returned_object,
+                                verbose = verbose)
   featurized_df$target <- df[,colnames(df) == target]
   returned_object$featurized_df <- featurized_df
 
