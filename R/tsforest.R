@@ -19,7 +19,8 @@
 #' @return Returns a time series forest model object (just a list at the moment)
 #' @examples
 #' \dontrun{
-#' model <- tsforest(df)
+#' data("LargeKitchenAppliances_TRAIN")
+#' model <- tsforest(LargeKitchenAppliances_TRAIN, target = "target")
 #' }
 #' @importFrom purrr map_dbl
 #' @import ranger
@@ -77,8 +78,11 @@ tsforest <- function(df,
 #' @return Returns predictions in the form of a `ranger::predict.ranger` response.
 #' @examples
 #' \dontrun{
+#' data("LargeKitchenAppliances_TRAIN")
+#' data("LargeKitchenAppliances_TEST")
+#' model <- tsforest(LargeKitchenAppliances_TRAIN, target = "target")
 #' train_preds <- predict_tsforest(model)
-#' test_preds <- predict_tsforest(model, newdata = test_data)
+#' test_preds <- predict_tsforest(model, newdata = LargeKitchenAppliances_TEST)
 #' }
 #'
 #' @importFrom stats predict

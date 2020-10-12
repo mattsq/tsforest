@@ -29,8 +29,11 @@ featurizes new data using the same intervals as needed.
 }
 \examples{
 \dontrun{
+data("LargeKitchenAppliances_TRAIN")
+data("LargeKitchenAppliances_TEST")
+model <- tsforest(LargeKitchenAppliances_TRAIN, target = "target")
 train_preds <- predict_tsforest(model)
-test_preds <- predict_tsforest(model, newdata = test_data)
+test_preds <- predict_tsforest(model, newdata = LargeKitchenAppliances_TEST)
 }
 
 }

@@ -35,6 +35,7 @@ Here, we use \verb{ranger::}.
 }
 \examples{
 \dontrun{
-model <- tsforest(df)
+data("LargeKitchenAppliances_TRAIN")
+model <- tsforest(LargeKitchenAppliances_TRAIN, target = "target")
 }
 }
