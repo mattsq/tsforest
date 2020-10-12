@@ -1,4 +1,4 @@
-#' @import stats
+#' @importFrom stats lm
 get_slope <- function(vec) {
   data <- data.frame(Y = vec, X = 1:length(vec))
   stats::lm(Y ~ X, data = data) %>%
@@ -6,9 +6,9 @@ get_slope <- function(vec) {
     {.[2]}
 }
 
-#' @import glue
-#' @import dplyr
-#' @import stats
+#' @importFrom glue glue
+#' @importFrom dplyr rowwise mutate select bind_cols
+#' @importFrom stats sd
 featurize_df <- function(X_df, returned_object, verbose) {
   n_intervals <- length(returned_object$intervals$start)
   all_features <- vector("list", length = n_intervals)

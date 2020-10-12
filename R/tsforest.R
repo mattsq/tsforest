@@ -21,9 +21,9 @@
 #' \dontrun{
 #' model <- tsforest(df)
 #' }
-#' @import purrr
+#' @importFrom purrr map_dbl
 #' @import ranger
-#' @import stats
+#' @importFrom stats as.formula
 #' @export
 tsforest <- function(df,
                      target = "target",
@@ -81,7 +81,7 @@ tsforest <- function(df,
 #' test_preds <- predict_tsforest(model, newdata = test_data)
 #' }
 #'
-#' @import stats
+#' @importFrom stats predict
 #' @export
 predict_tsforest <- function(model,
                              newdata = NULL,
@@ -92,7 +92,7 @@ predict_tsforest <- function(model,
   } else {
     X_newdata <- newdata[,!colnames(newdata) == model$target]
     featurized_newdata <- featurize_df(X_newdata, model, verbose = verbose)
-    preds <- predict(model$ranger_model, data = featurized_newdata, ...)
+    preds <- stats::predict(model$ranger_model, data = featurized_newdata, ...)
   }
   return(preds)
 }
