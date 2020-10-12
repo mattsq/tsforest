@@ -4,7 +4,7 @@
 \alias{tsforest}
 \title{Time Series Forest}
 \usage{
-tsforest(df, target = "target", min_length = 2, verbose = TRUE)
+tsforest(df, target = "target", min_length = 2, verbose = TRUE, ...)
 }
 \arguments{
 \item{df}{A data.frame object where each row is a time series.}
@@ -14,6 +14,8 @@ tsforest(df, target = "target", min_length = 2, verbose = TRUE)
 \item{min_length}{The minimum length of the sample intervals created. Must be >= 2}
 
 \item{verbose}{Whether or not to print the state of training as it happens.}
+
+\item{...}{arguments to be passed to the \code{ranger::ranger()}model, like mtry}
 }
 \value{
 Returns a time series forest model object (just a list at the moment)

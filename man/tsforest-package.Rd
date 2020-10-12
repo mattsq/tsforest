@@ -4,16 +4,18 @@
 \name{tsforest-package}
 \alias{tsforest}
 \alias{tsforest-package}
-\title{tsforest: What the Package Does (One Line, Title Case)}
+\title{tsforest: Time Series Forest Classification Modelling}
 \description{
-What the package does (one paragraph).
+This package implements Deng et al (2013)'s Time Series Classification 
+    algorithm as described by timeseriesclassification.com using the ranger package
+    as the random forest backend.
 }
 \details{
 An implementation of time series forest classification models, per Deng et al (2013)
 http://www.timeseriesclassification.com/algorithmdescription.php?algorithm_id=5
 }
 \author{
-\strong{Maintainer}: First Last \email{first.last@example.com} (\href{https://orcid.org/YOUR-ORCID-ID}{ORCID})
+\strong{Maintainer}: Matt Simmons \email{not.given@example.com}
 
 }
 \keyword{internal}

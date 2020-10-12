@@ -15,6 +15,7 @@
 #' @param target The name of the predicted class column, as a string
 #' @param min_length The minimum length of the sample intervals created. Must be >= 2
 #' @param verbose Whether or not to print the state of training as it happens.
+#' @param ... arguments to be passed to the `ranger::ranger()`model, like mtry
 #' @return Returns a time series forest model object (just a list at the moment)
 #' @examples
 #' \dontrun{
@@ -24,7 +25,11 @@
 #' @import ranger
 #' @import stats
 #' @export
-tsforest <- function(df, target = "target", min_length = 2, verbose = TRUE) {
+tsforest <- function(df,
+                     target = "target",
+                     min_length = 2,
+                     verbose = TRUE,
+                     ...) {
   X_df <- df[,!colnames(df) == target]
 
   n_intervals <- floor(sqrt(ncol(X_df)))
@@ -53,7 +58,7 @@ tsforest <- function(df, target = "target", min_length = 2, verbose = TRUE) {
 
   returned_object$ranger_model <- ranger::ranger(form_for_pred,
                                                  data = returned_object$featurized_df,
-                                                 importance = 'impurity')
+                                                 ...)
   return(returned_object)
 }
 
@@ -68,6 +73,7 @@ tsforest <- function(df, target = "target", min_length = 2, verbose = TRUE) {
 #' @param newdata optional new data frame - if not supplied, will use training data
 #' @param type As per 'response' argument of ranger::predict.ranger
 #' @param verbose Whether to print state of featurizing new data
+#' @param ... arguments to be passed to `ranger::predict.ranger`, like `type = "response"`
 #' @return Returns predictions in the form of a `ranger::predict.ranger` response.
 #' @examples
 #' \dontrun{
@@ -77,13 +83,16 @@ tsforest <- function(df, target = "target", min_length = 2, verbose = TRUE) {
 #'
 #' @import stats
 #' @export
-predict_tsforest <- function(model, newdata = NULL, type = "response", verbose = TRUE) {
+predict_tsforest <- function(model,
+                             newdata = NULL,
+                             verbose = TRUE,
+                             ...) {
   if(is.null(newdata)) {
     preds <- stats::predict(model$ranger_model, data = model$featurized_df, type = type)
   } else {
     X_newdata <- newdata[,!colnames(newdata) == model$target]
     featurized_newdata <- featurize_df(X_newdata, model, verbose = verbose)
-    preds <- predict(model$ranger_model, data = featurized_newdata, type = type)
+    preds <- predict(model$ranger_model, data = featurized_newdata, ...)
   }
   return(preds)
 }
