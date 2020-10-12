@@ -103,8 +103,10 @@ predict_tsforest <- function(model,
   return(preds)
 }
 
-#' @importFrom dplyr bind_rows
-#' @importFrom ggplot2 ggplot aes geom_linerange
+#' @importFrom dplyr bind_rows group_by summarise
+#' @importFrom ggplot2 ggplot aes geom_line
+#' @importFrom tidyr unnest
+#' @importFrom purrr map2
 intervalwise_variable_importance <- function(model, ...) {
   if(model$ranger_model$importance.mode == "none") {
     stop("Can only be passed if trained with variable importance.")
@@ -120,9 +122,17 @@ intervalwise_variable_importance <- function(model, ...) {
     scores_to_tibble(slope_scores)
   )
 
+  overall_tibble <- overall_tibble %>%
+    dplyr::mutate(idx = map2(From, To, ~ data.frame(idx = .x:.y)))
+
+  overall_tibble <- overall_tibble %>%
+    tidyr::unnest(cols = c(idx)) %>%
+    dplyr::group_by(idx, Type) %>%
+    dplyr::summarise(importance = sum(importance))
+
   overall_tibble %>%
-    ggplot2::ggplot(ggplot2::aes(y = importance, color = Type)) +
-    ggplot2::geom_linerange(ggplot2::aes(xmin = From, xmax = To))
+    ggplot2::ggplot(ggplot2::aes(x = idx, y = importance, color = Type)) +
+    ggplot2::geom_line()
 }
 
 #' @importFrom tibble rownames_to_column
