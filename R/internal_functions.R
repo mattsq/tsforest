@@ -27,7 +27,7 @@ featurize_df <- function(X_df, returned_object, verbose) {
              sd = stats::sd(dplyr::c_across(everything())),
              slope = get_slope(dplyr::c_across(everything()))) %>%
       dplyr::select(mean, sd, slope)
-    colnames(features) <- paste0("X",k,"_",c("mean","sd","slope"))
+    colnames(features) <- paste0(c("mean","sd","slope"),"_",k,"_From",interval_start,"To",interval_end)
     all_features[[k]] <- features
   }
 
