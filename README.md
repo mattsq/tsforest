@@ -33,69 +33,50 @@ The package is pretty easy to use\! Here’s a simple example:
 
 ``` r
 library(tsforest)
-data("LargeKitchenAppliances_TRAIN")
-data("LargeKitchenAppliances_TEST")
-model <- tsforest(LargeKitchenAppliances_TRAIN)
-#> Training model with 26 intervals...
-#> 1: Interval from 85 to 116
-#> 2: Interval from 169 to 621
-#> 3: Interval from 14 to 490
-#> 4: Interval from 522 to 555
-#> 5: Interval from 501 to 651
-#> 6: Interval from 375 to 640
-#> 7: Interval from 629 to 695
-#> 8: Interval from 651 to 655
-#> 9: Interval from 712 to 715
-#> 10: Interval from 310 to 539
-#> 11: Interval from 124 to 193
-#> 12: Interval from 95 to 665
-#> 13: Interval from 568 to 579
-#> 14: Interval from 352 to 635
-#> 15: Interval from 383 to 716
-#> 16: Interval from 76 to 431
-#> 17: Interval from 138 to 662
-#> 18: Interval from 689 to 708
-#> 19: Interval from 597 to 654
-#> 20: Interval from 314 to 408
-#> 21: Interval from 286 to 324
-#> 22: Interval from 146 to 338
-#> 23: Interval from 496 to 599
-#> 24: Interval from 137 to 514
-#> 25: Interval from 404 to 676
-#> 26: Interval from 474 to 579
-preds <- predict_tsforest(model, LargeKitchenAppliances_TEST)
-#> 1: Interval from 85 to 116
-#> 2: Interval from 169 to 621
-#> 3: Interval from 14 to 490
-#> 4: Interval from 522 to 555
-#> 5: Interval from 501 to 651
-#> 6: Interval from 375 to 640
-#> 7: Interval from 629 to 695
-#> 8: Interval from 651 to 655
-#> 9: Interval from 712 to 715
-#> 10: Interval from 310 to 539
-#> 11: Interval from 124 to 193
-#> 12: Interval from 95 to 665
-#> 13: Interval from 568 to 579
-#> 14: Interval from 352 to 635
-#> 15: Interval from 383 to 716
-#> 16: Interval from 76 to 431
-#> 17: Interval from 138 to 662
-#> 18: Interval from 689 to 708
-#> 19: Interval from 597 to 654
-#> 20: Interval from 314 to 408
-#> 21: Interval from 286 to 324
-#> 22: Interval from 146 to 338
-#> 23: Interval from 496 to 599
-#> 24: Interval from 137 to 514
-#> 25: Interval from 404 to 676
-#> 26: Interval from 474 to 579
-table(preds$predictions, LargeKitchenAppliances_TEST$target)
+data("FreezerRegularTrain_TRAIN")
+data("FreezerRegularTrain_TEST")
+model <- tsforest(FreezerRegularTrain_TRAIN, target = "target")
+#> Training model with 17 intervals...
+#> 1: Interval from 298 to 300
+#> 2: Interval from 118 to 196
+#> 3: Interval from 202 to 276
+#> 4: Interval from 61 to 237
+#> 5: Interval from 250 to 264
+#> 6: Interval from 109 to 294
+#> 7: Interval from 264 to 300
+#> 8: Interval from 27 to 133
+#> 9: Interval from 47 to 121
+#> 10: Interval from 122 to 149
+#> 11: Interval from 113 to 215
+#> 12: Interval from 294 to 301
+#> 13: Interval from 18 to 273
+#> 14: Interval from 262 to 284
+#> 15: Interval from 108 to 245
+#> 16: Interval from 292 to 299
+#> 17: Interval from 257 to 285
+preds <- predict_tsforest(model, FreezerRegularTrain_TEST)
+#> 1: Interval from 298 to 300
+#> 2: Interval from 118 to 196
+#> 3: Interval from 202 to 276
+#> 4: Interval from 61 to 237
+#> 5: Interval from 250 to 264
+#> 6: Interval from 109 to 294
+#> 7: Interval from 264 to 300
+#> 8: Interval from 27 to 133
+#> 9: Interval from 47 to 121
+#> 10: Interval from 122 to 149
+#> 11: Interval from 113 to 215
+#> 12: Interval from 294 to 301
+#> 13: Interval from 18 to 273
+#> 14: Interval from 262 to 284
+#> 15: Interval from 108 to 245
+#> 16: Interval from 292 to 299
+#> 17: Interval from 257 to 285
+table(preds$predictions, FreezerRegularTrain_TEST$target)
 #>    
-#>      1  2  3
-#>   1 73 31 29
-#>   2 33 80 31
-#>   3 19 14 65
+#>        1    2
+#>   1 1415   20
+#>   2   10 1405
 ```
 
 There’s also a more experimental (and not at all theoretically
@@ -105,7 +86,9 @@ the time series interval. You can use any summary function, although sum
 seems to work the best:
 
 ``` r
-model <- tsforest(LargeKitchenAppliances_TRAIN, importance = 'permutation', verbose = FALSE)
+model <- tsforest(FreezerRegularTrain_TRAIN, 
+                  importance = 'permutation', 
+                  verbose = FALSE)
 intervalwise_variable_importance(model, summary_function = sum)
 ```
 
@@ -115,7 +98,9 @@ You can also plot an individual example using the function, where the
 example will be scaled correctly to the importance values:
 
 ``` r
-intervalwise_variable_importance(model, summary_function = sum, optional_example_rownumber = 1)
+intervalwise_variable_importance(model, 
+                                 summary_function = sum, 
+                                 optional_example_rownumber = 1)
 ```
 
 <img src="man/figures/README-unnamed-chunk-4-1.png" width="100%" />
