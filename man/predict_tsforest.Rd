@@ -14,8 +14,6 @@ predict_tsforest(model, newdata = NULL, verbose = TRUE, ...)
 \item{verbose}{Whether to print state of featurizing new data}
 
 \item{...}{arguments to be passed to \code{ranger::predict.ranger}, like \code{type = "response"}}
-
-\item{type}{As per 'response' argument of ranger::predict.ranger}
 }
 \value{
 Returns predictions in the form of a \code{ranger::predict.ranger} response.

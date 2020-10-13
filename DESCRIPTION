@@ -24,6 +24,7 @@ Imports:
     tibble,
     stringr,
     ggplot2,
-    tidyr
+    tidyr,
+    scales
 Depends: 
     R (>= 2.10)
