@@ -38,7 +38,7 @@ tsforest <- function(df,
     cat(glue::glue("Training model with {n_intervals} intervals..."))
     cat("\n")
   }
-  returned_object <- list(
+  returned_object <- structure(list(
     training_df = NA,
     featurized_df = NA,
     ranger_model = NA,
@@ -47,7 +47,7 @@ tsforest <- function(df,
       start = numeric(n_intervals),
       end = numeric(n_intervals)
     )
-  )
+  ), class = "tsforest")
   returned_object$training_df <- df
 
   returned_object$intervals$start <- sample(1:((ncol(X_df)-min_length)), n_intervals)
@@ -90,13 +90,14 @@ tsforest <- function(df,
 #'
 #' @importFrom stats predict
 #' @export
-predict_tsforest <- function(model,
+predict.tsforest <- function(model,
                              newdata = NULL,
                              verbose = TRUE,
                              ...) {
   if(is.null(newdata)) {
     preds <- stats::predict(model$ranger_model, data = model$featurized_df, type = type)
   } else {
+    if (verbose) cat("Fitting new data to trained intervals:\n")
     X_newdata <- newdata[,!colnames(newdata) == model$target]
     featurized_newdata <- featurize_df(X_newdata, model, verbose = verbose)
     preds <- stats::predict(model$ranger_model, data = featurized_newdata, ...)
