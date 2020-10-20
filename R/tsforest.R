@@ -26,37 +26,19 @@
 #' @import ranger
 #' @importFrom stats as.formula
 #' @export
-tsforest <- function(df,
+tsforest <- function(data,
                      target = "target",
                      min_length = 2,
                      verbose = TRUE,
                      ...) {
-  X_df <- df[,!colnames(df) == target]
 
-  n_intervals <- floor(sqrt(ncol(X_df)))
-  if (verbose) {
-    cat(glue::glue("Training model with {n_intervals} intervals..."))
-    cat("\n")
-  }
-  returned_object <- structure(list(
-    training_df = NA,
-    featurized_df = NA,
-    ranger_model = NA,
-    target = target,
-    intervals = list(
-      start = numeric(n_intervals),
-      end = numeric(n_intervals)
-    )
-  ), class = "tsforest")
-  returned_object$training_df <- df
 
-  returned_object$intervals$start <- sample(1:((ncol(X_df)-min_length)), n_intervals)
-  returned_object$intervals$end <- purrr::map_dbl(returned_object$intervals$start, ~ sample((.x+min_length):ncol(X_df), 1))
+  returned_object <- new_tsforest(data, target, min_length)
 
-  featurized_df <- featurize_df(X_df = X_df,
-                                returned_object = returned_object,
+  featurized_df <- featurize_df(data = data,
+                                tsforest_obj = returned_object,
                                 verbose = verbose)
-  featurized_df$target <- df[,colnames(df) == target]
+
   returned_object$featurized_df <- featurized_df
 
   form_for_pred <- stats::as.formula(paste0(target, " ~ ."))
@@ -95,11 +77,10 @@ predict.tsforest <- function(model,
                              verbose = TRUE,
                              ...) {
   if(is.null(newdata)) {
-    preds <- stats::predict(model$ranger_model, data = model$featurized_df, type = type)
+    preds <- stats::predict(model$ranger_model, data = model$featurized_df, ...)
   } else {
     if (verbose) cat("Fitting new data to trained intervals:\n")
-    X_newdata <- newdata[,!colnames(newdata) == model$target]
-    featurized_newdata <- featurize_df(X_newdata, model, verbose = verbose)
+    featurized_newdata <- featurize_df(newdata, model, verbose = verbose)
     preds <- stats::predict(model$ranger_model, data = featurized_newdata, ...)
   }
   return(preds)
