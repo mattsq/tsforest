@@ -6,9 +6,13 @@ print.tsforest <- function(model) {
   ncol_converted <- ncol(model$featurized_df) - 1
   target <- model$target
   cat("Time series forest model converting time series of length:", ncol_training, "\n")
-  cat("To length:", ncol_converted, "\n")
+  cat("To length:", length(model$intervals$start)*3, "\n")
   cat("Predicting on target class:", target, "\n")
-  cat("Includes underlying random forest model:\n")
-  print(model$ranger_model)
+  if(is.na(model$ranger_model)) {
+    cat("No random forest model trained yet.")
+  } else {
+    cat("Includes underlying random forest model:\n")
+    print(model$ranger_model)
+  }
   invisible(model)
 }

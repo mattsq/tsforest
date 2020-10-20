@@ -67,3 +67,21 @@ intervalwise_variable_importance(model,
                                  optional_example_rownumber = 1)
 ```
 
+We implement random forest here for convenience, but the bag of features used by Time Series Forest can be used by other models - `tsforest::new_tsforest()` and `tsforest::featurized_df` allow you to apply the features using your own models. This interface isn't perfect, so it may change. Here, in slightly goofy example, we use logistic regression instead of random forests:
+
+```{r}
+data("FreezerRegularTrain_TRAIN")
+data("FreezerRegularTrain_TEST")
+trained_tsobj <- new_tsforest(FreezerRegularTrain_TRAIN, target = "target", min_length = 2)
+featurized_train <- featurize_df(FreezerRegularTrain_TRAIN, trained_tsobj, verbose = FALSE)
+glm_model <- glm(target ~ ., data = featurized_train, family = "binomial")
+summary(glm_model)
+```
+
+```{r}
+featurized_test <- featurize_df(FreezerRegularTrain_TEST, trained_tsobj, verbose = FALSE)
+preds <- predict(glm_model, featurized_test, type = "response")
+preds <- as.numeric(preds > 0.5) + 1
+table(preds, featurized_test$target)
+```
+
