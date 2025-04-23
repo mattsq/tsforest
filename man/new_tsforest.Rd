@@ -4,7 +4,7 @@
 \alias{new_tsforest}
 \title{Create new TS Forest Object}
 \usage{
-new_tsforest(data, target, min_length)
+new_tsforest(data, target, min_length = 2, n_trees)
 }
 \arguments{
 \item{data}{a training data set where each row is a time series, plus a target class}

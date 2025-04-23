@@ -4,7 +4,7 @@
 \alias{featurize_df}
 \title{Featurize Data Frame}
 \usage{
-featurize_df(data, tsforest_obj, verbose)
+featurize_df(data, tsforest_obj, tree_idx, verbose = FALSE)
 }
 \description{
 Convert a data frame into a time series forest-ready bag of mean/sd/slope random features

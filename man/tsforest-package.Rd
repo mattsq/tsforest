@@ -2,13 +2,10 @@
 % Please edit documentation in R/tsforest-package.R
 \docType{package}
 \name{tsforest-package}
-\alias{tsforest}
 \alias{tsforest-package}
 \title{tsforest: Time Series Forest Classification Modelling}
 \description{
-This package implements Deng et al (2013)'s Time Series Classification 
-    algorithm as described by timeseriesclassification.com using the ranger package
-    as the random forest backend.
+This package implements Deng et al (2013)'s Time Series Classification algorithm as described by timeseriesclassification.com using the ranger package as the random forest backend.
 }
 \details{
 An implementation of time series forest classification models, per Deng et al (2013)

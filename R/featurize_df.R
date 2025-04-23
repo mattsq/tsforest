@@ -11,47 +11,32 @@
 #' ts_obj <- new_tsforest(FreezerRegularTrain_TRAIN, target = "target")
 #' test_df <- featurize_df(FreezerRegularTrain_TEST, tsforest_obj = ts_obj, verbose = TRUE)
 #' @export
-featurize_df <- function(data, tsforest_obj, verbose) {
 
-  if(ncol(data) != ncol(tsforest_obj$training_df)) {
-    stop("New data must have the same dimensions as the data the object was created on.")
+featurize_df <- function(data, tsforest_obj, tree_idx, verbose = FALSE) {
+
+  if (missing(tree_idx))
+    stop("`tree_idx` (1 … n_trees) is required.")
+
+  int_tbl <- tsforest_obj$intervals[[tree_idx]]
+
+  if (ncol(data) != ncol(tsforest_obj$training_df))
+    stop("`data` must have the same number of columns as the training set.")
+
+  X_df <- data[, !colnames(data) %in% tsforest_obj$target, drop = FALSE]
+  all_features <- vector("list", nrow(int_tbl))
+
+  for (k in seq_len(nrow(int_tbl))) {
+
+    s <- int_tbl$start[k];  e <- int_tbl$end[k]
+    if (verbose) cat(glue::glue("{tree_idx}:{k} interval {s}–{e}"), "\n")
+
+    stats_mat <- calc_interval_features(as.matrix(X_df[, s:e, drop = FALSE]))
+
+    colnames(stats_mat) <- paste0(c("mean", "sd", "slope"),
+                                  "_", k, "_From", s, "To", e)
+    all_features[[k]] <- as.data.frame(stats_mat, check.names = FALSE)
   }
 
-
-  n_intervals <- length(tsforest_obj$intervals$start)
-  if (verbose) {
-    cat(glue::glue("Creating features with {n_intervals} intervals..."))
-    cat("\n")
-  }
-
-  X_df <- data[,!colnames(data) == tsforest_obj$target]
-
-  all_features <- vector("list", length = n_intervals)
-
-  for (k in 1:n_intervals) {
-
-    interval_start <- tsforest_obj$intervals$start[k]
-    interval_end <- tsforest_obj$intervals$end[k]
-
-    if (verbose) {
-      cat(glue::glue("{k}: Interval from {interval_start} to {interval_end}"))
-      cat("\n")
-    }
-
-    restricted_df <- X_df[,interval_start:interval_end]
-
-    features <- restricted_df %>%
-      dplyr::rowwise() %>%
-      dplyr::mutate(mean = mean(dplyr::c_across(everything())),
-                    sd = stats::sd(dplyr::c_across(everything())),
-                    slope = get_slope(dplyr::c_across(everything()))) %>%
-      dplyr::select(mean, sd, slope)
-
-    colnames(features) <- paste0(c("mean","sd","slope"),"_",k,"_From",interval_start,"To",interval_end)
-    all_features[[k]] <- features
-  }
-
-  featurized_df <- dplyr::bind_cols(all_features)
-  featurized_df$target <- data$target
-  return(featurized_df)
+  dplyr::bind_cols(all_features)
 }
+

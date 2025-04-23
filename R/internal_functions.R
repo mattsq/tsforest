@@ -22,4 +22,16 @@ scores_to_tibble <- function(scores) {
 }
 
 
+calc_interval_features <- function(mat) {
+  ## mat : matrix  (rows = series, cols = points inside interval)
+  n          <- ncol(mat)
+  means      <- matrixStats::rowMeans2(mat)
+  sds        <- matrixStats::rowSds(mat)
 
+  t          <- seq_len(n)
+  t_center   <- t - mean(t)
+  cov_y_t    <- (mat %*% t_center) / (n - 1)
+  slope      <- as.numeric(cov_y_t / stats::var(t))
+
+  cbind(mean = means, sd = sds, slope = slope)
+}

@@ -26,28 +26,34 @@
 #' @import ranger
 #' @importFrom stats as.formula
 #' @export
+
 tsforest <- function(data,
                      target = "target",
                      min_length = 2,
                      verbose = TRUE,
+                     n_trees = 10,
                      ...) {
 
+  model <- new_tsforest(data, target, min_length, n_trees = n_trees)
 
-  returned_object <- new_tsforest(data, target, min_length)
+  feature_list <- lapply(seq_len(n_trees), function(j)
+    featurize_df(data, model, tree_idx = j, verbose = verbose))
 
-  featurized_df <- featurize_df(data = data,
-                                tsforest_obj = returned_object,
-                                verbose = verbose)
+  featurized_df <- dplyr::bind_cols(feature_list)
+  featurized_df[[target]] <- data[[target]]
 
-  returned_object$featurized_df <- featurized_df
+  model$feature_names <- setdiff(colnames(featurized_df), target)
+  model$featurized_df <- featurized_df
 
-  form_for_pred <- stats::as.formula(paste0(target, " ~ ."))
+  form <- stats::as.formula(paste0(target, " ~ ."))
+  model$ranger_model <- ranger::ranger(form,
+                                       data      = featurized_df,
+                                       num.trees = n_trees,
+                                       ...)
 
-  returned_object$ranger_model <- ranger::ranger(form_for_pred,
-                                                 data = returned_object$featurized_df,
-                                                 ...)
-  return(returned_object)
+  model
 }
+
 
 #' Predict Time Series Forest
 #'
@@ -72,19 +78,29 @@ tsforest <- function(data,
 #'
 #' @importFrom stats predict
 #' @export
+
 predict.tsforest <- function(model,
                              newdata = NULL,
-                             verbose = TRUE,
+                             verbose = FALSE,
                              ...) {
-  if(is.null(newdata)) {
-    preds <- stats::predict(model$ranger_model, data = model$featurized_df, ...)
-  } else {
-    if (verbose) cat("Fitting new data to trained intervals:\n")
-    featurized_newdata <- featurize_df(newdata, model, verbose = verbose)
-    preds <- stats::predict(model$ranger_model, data = featurized_newdata, ...)
+
+  if (is.null(newdata)) {
+    return(stats::predict(model$ranger_model,
+                          data = model$featurized_df,
+                          ...))
   }
-  return(preds)
+
+  feature_list <- lapply(seq_along(model$intervals), function(j)
+    featurize_df(newdata, model, tree_idx = j, verbose = verbose))
+
+  featurized_new <- dplyr::bind_cols(feature_list)[, model$feature_names, drop = FALSE]
+
+  stats::predict(model$ranger_model,
+                 data = featurized_new,
+                 ...)
 }
+
+
 
 #' Plot Interval-Wise Variable Importance
 #'

@@ -13,23 +13,33 @@
 #' @importFrom purrr map_dbl
 #' @export
 
-new_tsforest <- function(data, target, min_length) {
-  X_df <- data[,!colnames(data) == target]
+new_tsforest <- function(data, target, min_length = 2, n_trees) {
+
+  if (missing(n_trees))
+    stop("`n_trees` must be supplied explicitly.")
+
+  X_df        <- data[, !colnames(data) %in% target, drop = FALSE]
   n_intervals <- floor(sqrt(ncol(X_df)))
-  obj <-
-    structure(
-      list(
-        training_df = data,
-        featurized_df = NA,
-        ranger_model = NA,
-        target = target,
-        intervals = list(
-          start = sample(1:((ncol(X_df)-min_length)), n_intervals),
-          end = NA
-        )
-      ), class = "tsforest")
 
-  obj$intervals$end <- purrr::map_dbl(obj$intervals$start, ~ sample((.x+min_length):ncol(X_df), 1))
+  # sample a private interval bag for every tree
+  per_tree <- vector("list", n_trees)
+  for (j in seq_len(n_trees)) {
+    starts <- sample(1:(ncol(X_df) - min_length), n_intervals, replace = TRUE)
+    ends   <- purrr::map_dbl(starts,
+                             ~ sample((.x + min_length):ncol(X_df), 1))
+    per_tree[[j]] <- tibble::tibble(start = starts, end = ends)
+  }
 
-  return(obj)
+  structure(
+    list(
+      training_df   = data,
+      featurized_df = NULL,
+      ranger_model  = NULL,
+      target        = target,
+      intervals     = per_tree,   # list-of-tibbles (one per tree)
+      feature_names = NULL
+    ),
+    class = "tsforest"
+  )
 }
+

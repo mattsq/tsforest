@@ -4,7 +4,14 @@
 \alias{tsforest}
 \title{Time Series Forest}
 \usage{
-tsforest(data, target = "target", min_length = 2, verbose = TRUE, ...)
+tsforest(
+  data,
+  target = "target",
+  min_length = 2,
+  verbose = TRUE,
+  n_trees = 10,
+  ...
+)
 }
 \arguments{
 \item{target}{The name of the predicted class column, as a string}

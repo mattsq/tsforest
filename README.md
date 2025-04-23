@@ -4,7 +4,6 @@
 # tsforest
 
 <!-- badges: start -->
-
 <!-- badges: end -->
 
 The goal of tsforest is to provide an R implementation of the Time
@@ -23,54 +22,47 @@ You can install the the development version from
 devtools::install_github("mattsq/tsforest")
 ```
 
-This is still very much a work in progress\! Eventually I’d like to
+This is still very much a work in progress! Eventually I’d like to
 S3-ize the model objects, build tests and more example data, and in
 general make it a more properly-featured model package.
 
 ## Usage
 
-The package is pretty easy to use\! Here’s a simple example:
+The package is pretty easy to use! Here’s a simple example:
 
 ``` r
 library(tsforest)
 data("FreezerRegularTrain_TRAIN")
 data("FreezerRegularTrain_TEST")
-model <- tsforest(FreezerRegularTrain_TRAIN, target = "target")
-#> Creating features with 17 intervals...
-#> 1: Interval from 239 to 242
-#> 2: Interval from 296 to 299
-#> 3: Interval from 98 to 261
-#> 4: Interval from 53 to 145
-#> 5: Interval from 15 to 83
-#> 6: Interval from 257 to 279
-#> 7: Interval from 202 to 250
-#> 8: Interval from 277 to 286
-#> 9: Interval from 115 to 267
-#> 10: Interval from 238 to 243
-#> 11: Interval from 210 to 269
-#> 12: Interval from 68 to 220
-#> 13: Interval from 1 to 152
-#> 14: Interval from 234 to 237
-#> 15: Interval from 247 to 259
-#> 16: Interval from 40 to 218
-#> 17: Interval from 214 to 218
+model <- tsforest(FreezerRegularTrain_TRAIN, target = "target", n_trees = 50, verbose = FALSE)
+#> New names:
+#> • `mean_16_From296To298` -> `mean_16_From296To298...862`
+#> • `sd_16_From296To298` -> `sd_16_From296To298...863`
+#> • `slope_16_From296To298` -> `slope_16_From296To298...864`
+#> • `mean_16_From296To298` -> `mean_16_From296To298...1321`
+#> • `sd_16_From296To298` -> `sd_16_From296To298...1322`
+#> • `slope_16_From296To298` -> `slope_16_From296To298...1323`
+#> • `mean_15_From285To299` -> `mean_15_From285To299...1369`
+#> • `sd_15_From285To299` -> `sd_15_From285To299...1370`
+#> • `slope_15_From285To299` -> `slope_15_From285To299...1371`
+#> • `mean_15_From285To299` -> `mean_15_From285To299...2236`
+#> • `sd_15_From285To299` -> `sd_15_From285To299...2237`
+#> • `slope_15_From285To299` -> `slope_15_From285To299...2238`
 print(model)
 #> Time series forest model converting time series of length: 301 
-#> To length: 51 
-#> Predicting on target class: target
-#> Warning in if (is.na(model$ranger_model)) {: the condition has length > 1 and
-#> only the first element will be used
+#> To length: 17 
+#> Predicting on target class: target 
 #> Includes underlying random forest model:
 #> Ranger result
 #> 
 #> Call:
-#>  ranger::ranger(form_for_pred, data = returned_object$featurized_df,      ...) 
+#>  ranger::ranger(form, data = featurized_df, num.trees = n_trees,      ...) 
 #> 
 #> Type:                             Classification 
-#> Number of trees:                  500 
+#> Number of trees:                  50 
 #> Sample size:                      150 
-#> Number of independent variables:  51 
-#> Mtry:                             7 
+#> Number of independent variables:  2550 
+#> Mtry:                             50 
 #> Target node size:                 1 
 #> Variable importance mode:         none 
 #> Splitrule:                        gini 
@@ -81,35 +73,29 @@ Predictions use the standard S3 predict method, and return a vector of
 predictions:
 
 ``` r
-preds <- predict(model, FreezerRegularTrain_TEST)
-#> Fitting new data to trained intervals:
-#> Creating features with 17 intervals...
-#> 1: Interval from 239 to 242
-#> 2: Interval from 296 to 299
-#> 3: Interval from 98 to 261
-#> 4: Interval from 53 to 145
-#> 5: Interval from 15 to 83
-#> 6: Interval from 257 to 279
-#> 7: Interval from 202 to 250
-#> 8: Interval from 277 to 286
-#> 9: Interval from 115 to 267
-#> 10: Interval from 238 to 243
-#> 11: Interval from 210 to 269
-#> 12: Interval from 68 to 220
-#> 13: Interval from 1 to 152
-#> 14: Interval from 234 to 237
-#> 15: Interval from 247 to 259
-#> 16: Interval from 40 to 218
-#> 17: Interval from 214 to 218
+preds <- predict(model, FreezerRegularTrain_TEST, verbose = FALSE)
+#> New names:
+#> • `mean_16_From296To298` -> `mean_16_From296To298...862`
+#> • `sd_16_From296To298` -> `sd_16_From296To298...863`
+#> • `slope_16_From296To298` -> `slope_16_From296To298...864`
+#> • `mean_16_From296To298` -> `mean_16_From296To298...1321`
+#> • `sd_16_From296To298` -> `sd_16_From296To298...1322`
+#> • `slope_16_From296To298` -> `slope_16_From296To298...1323`
+#> • `mean_15_From285To299` -> `mean_15_From285To299...1369`
+#> • `sd_15_From285To299` -> `sd_15_From285To299...1370`
+#> • `slope_15_From285To299` -> `slope_15_From285To299...1371`
+#> • `mean_15_From285To299` -> `mean_15_From285To299...2236`
+#> • `sd_15_From285To299` -> `sd_15_From285To299...2237`
+#> • `slope_15_From285To299` -> `slope_15_From285To299...2238`
 table(preds$predictions, FreezerRegularTrain_TEST$target)
 #>    
 #>        1    2
-#>   1 1412    7
-#>   2   13 1418
+#>   1 1420    8
+#>   2    5 1417
 ```
 
 There’s also a more experimental (and not at all theoretically
-grounded\!) function that takes advantage of the fact that variables are
+grounded!) function that takes advantage of the fact that variables are
 (partially) defined as intervals to plot the variable importance across
 the time series interval. You can use any summary function, although sum
 seems to work the best:
@@ -118,7 +104,7 @@ seems to work the best:
 model <- tsforest(FreezerRegularTrain_TRAIN, 
                   importance = 'permutation', 
                   verbose = FALSE)
-intervalwise_variable_importance(model, summary_function = sum)
+intervalwise_variable_importance(model, summary_function = mean)
 ```
 
 <img src="man/figures/README-intervalwise_model_1-1.png" width="100%" />
@@ -128,8 +114,8 @@ example will be scaled correctly to the importance values:
 
 ``` r
 intervalwise_variable_importance(model, 
-                                 summary_function = sum, 
-                                 optional_example_rownumber = 1)
+                                 summary_function = mean, 
+                                 optional_example_rownumber = 2)
 ```
 
 <img src="man/figures/README-intervalwise_with_example-1.png" width="100%" />
@@ -144,8 +130,9 @@ regression instead of random forests:
 ``` r
 data("FreezerRegularTrain_TRAIN")
 data("FreezerRegularTrain_TEST")
-trained_tsobj <- new_tsforest(FreezerRegularTrain_TRAIN, target = "target", min_length = 2)
-featurized_train <- featurize_df(FreezerRegularTrain_TRAIN, trained_tsobj, verbose = FALSE)
+trained_tsobj <- new_tsforest(FreezerRegularTrain_TRAIN, target = "target", min_length = 2, n_trees = 1)
+featurized_train <- featurize_df(FreezerRegularTrain_TRAIN, trained_tsobj, verbose = FALSE, tree_idx = 1)
+featurized_train$target <- FreezerRegularTrain_TRAIN$target
 glm_model <- glm(target ~ ., data = featurized_train, family = "binomial")
 #> Warning: glm.fit: algorithm did not converge
 #> Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
@@ -154,81 +141,78 @@ summary(glm_model)
 #> Call:
 #> glm(formula = target ~ ., family = "binomial", data = featurized_train)
 #> 
-#> Deviance Residuals: 
-#>        Min          1Q      Median          3Q         Max  
-#> -9.758e-06  -1.142e-06   0.000e+00   1.277e-06   8.392e-06  
-#> 
 #> Coefficients:
 #>                         Estimate Std. Error z value Pr(>|z|)
-#> (Intercept)           -8.188e+02  1.667e+07       0        1
-#> mean_1_From143To266    1.741e+03  5.227e+07       0        1
-#> sd_1_From143To266      1.535e+01  3.102e+06       0        1
-#> slope_1_From143To266  -3.664e+04  1.042e+09       0        1
-#> mean_2_From36To236    -6.048e+02  2.446e+07       0        1
-#> sd_2_From36To236       1.331e+03  1.692e+07       0        1
-#> slope_2_From36To236    1.057e+05  1.104e+09       0        1
-#> mean_3_From168To199    1.101e+02  4.919e+06       0        1
-#> sd_3_From168To199     -1.459e+01  1.988e+06       0        1
-#> slope_3_From168To199  -7.152e+02  2.824e+07       0        1
-#> mean_4_From88To272    -4.040e+03  1.237e+08       0        1
-#> sd_4_From88To272       1.450e+02  7.311e+06       0        1
-#> slope_4_From88To272    1.622e+05  3.413e+09       0        1
-#> mean_5_From69To111    -4.408e+02  5.300e+07       0        1
-#> sd_5_From69To111       8.392e+01  1.172e+07       0        1
-#> slope_5_From69To111   -6.240e+03  5.998e+08       0        1
-#> mean_6_From250To287    1.634e+02  2.418e+07       0        1
-#> sd_6_From250To287      2.489e+01  1.999e+06       0        1
-#> slope_6_From250To287  -2.206e+02  1.966e+08       0        1
-#> mean_7_From68To169     5.172e+03  1.175e+08       0        1
-#> sd_7_From68To169      -6.607e+02  2.039e+07       0        1
-#> slope_7_From68To169   -1.296e+05  3.115e+09       0        1
-#> mean_8_From298To300   -1.608e+02  7.626e+06       0        1
-#> sd_8_From298To300     -3.928e+01  1.232e+06       0        1
-#> slope_8_From298To300  -7.934e+02  3.814e+07       0        1
-#> mean_9_From280To290   -9.847e+01  6.896e+06       0        1
-#> sd_9_From280To290      1.105e+00  2.246e+06       0        1
-#> slope_9_From280To290   2.768e+01  1.392e+07       0        1
-#> mean_10_From64To94    -1.466e+03  4.612e+07       0        1
-#> sd_10_From64To94       1.423e+03  3.303e+07       0        1
-#> slope_10_From64To94    1.584e+04  4.067e+08       0        1
-#> mean_11_From268To270  -2.155e+02  6.692e+06       0        1
-#> sd_11_From268To270    -2.018e+01  6.643e+05       0        1
-#> slope_11_From268To270 -1.054e+03  3.208e+07       0        1
-#> mean_12_From216To283  -1.660e+02  2.200e+07       0        1
-#> sd_12_From216To283    -4.402e+01  2.122e+06       0        1
-#> slope_12_From216To283 -1.824e+03  2.807e+08       0        1
-#> mean_13_From240To279  -7.672e+01  1.781e+07       0        1
-#> sd_13_From240To279     7.475e+00  2.883e+06       0        1
-#> slope_13_From240To279 -4.786e+02  1.798e+08       0        1
-#> mean_14_From101To145   2.455e+02  3.711e+07       0        1
-#> sd_14_From101To145     3.018e+02  1.282e+07       0        1
-#> slope_14_From101To145  4.811e+03  3.249e+08       0        1
-#> mean_15_From246To294   2.722e+01  7.307e+06       0        1
-#> sd_15_From246To294     2.056e+02  4.814e+06       0        1
-#> slope_15_From246To294  6.114e+03  1.983e+08       0        1
-#> mean_16_From30To40    -6.292e+02  2.874e+08       0        1
-#> sd_16_From30To40      -8.178e+04  3.959e+09       0        1
-#> slope_16_From30To40   -2.864e+04  8.774e+09       0        1
-#> mean_17_From62To286   -5.590e+02  1.686e+08       0        1
-#> sd_17_From62To286     -5.863e+01  9.036e+06       0        1
-#> slope_17_From62To286   2.869e+04  7.237e+09       0        1
+#> (Intercept)           -3.060e+02  2.278e+07       0        1
+#> mean_1_From128To138   -5.546e+01  1.503e+07       0        1
+#> sd_1_From128To138     -9.476e+01  6.726e+06       0        1
+#> slope_1_From128To138  -5.014e+02  2.576e+07       0        1
+#> mean_2_From57To267    -1.537e+03  6.547e+07       0        1
+#> sd_2_From57To267       2.309e+02  1.112e+07       0        1
+#> slope_2_From57To267    1.146e+05  2.645e+09       0        1
+#> mean_3_From153To200   -2.793e+02  1.834e+07       0        1
+#> sd_3_From153To200     -2.055e+00  3.532e+06       0        1
+#> slope_3_From153To200   1.836e+03  1.917e+08       0        1
+#> mean_4_From142To150    9.644e+01  9.628e+06       0        1
+#> sd_4_From142To150     -1.521e+02  6.575e+06       0        1
+#> slope_4_From142To150   1.602e+02  2.049e+07       0        1
+#> mean_5_From255To264   -8.638e+00  1.346e+06       0        1
+#> sd_5_From255To264      1.615e+01  1.663e+06       0        1
+#> slope_5_From255To264   2.129e+01  6.254e+06       0        1
+#> mean_6_From215To270    5.033e+02  4.756e+07       0        1
+#> sd_6_From215To270     -3.003e+01  3.952e+06       0        1
+#> slope_6_From215To270   2.696e+03  4.461e+08       0        1
+#> mean_7_From94To115    -1.044e+03  2.914e+07       0        1
+#> sd_7_From94To115      -5.780e+02  1.178e+07       0        1
+#> slope_7_From94To115   -2.926e+02  9.707e+07       0        1
+#> mean_8_From38To129    -4.175e+03  4.721e+08       0        1
+#> sd_8_From38To129       1.008e+04  4.109e+08       0        1
+#> slope_8_From38To129   -2.387e+04  8.588e+09       0        1
+#> mean_9_From3To114      3.456e+03  3.844e+08       0        1
+#> sd_9_From3To114       -8.944e+03  7.369e+08       0        1
+#> slope_9_From3To114     1.554e+05  1.355e+10       0        1
+#> mean_10_From68To283    5.403e+03  1.000e+08       0        1
+#> sd_10_From68To283      1.609e+01  1.195e+07       0        1
+#> slope_10_From68To283  -1.701e+05  3.556e+09       0        1
+#> mean_11_From182To216   5.986e+01  9.949e+06       0        1
+#> sd_11_From182To216     4.584e+01  5.073e+06       0        1
+#> slope_11_From182To216  6.331e+02  6.849e+07       0        1
+#> mean_12_From250To301   3.201e+02  4.717e+07       0        1
+#> sd_12_From250To301     9.274e+01  2.801e+06       0        1
+#> slope_12_From250To301  6.818e+03  4.476e+08       0        1
+#> mean_13_From216To244   4.827e+01  1.043e+07       0        1
+#> sd_13_From216To244     1.290e+01  2.036e+06       0        1
+#> slope_13_From216To244  1.155e+02  4.246e+07       0        1
+#> mean_14_From112To158   4.710e+00  4.102e+07       0        1
+#> sd_14_From112To158     8.773e+01  1.839e+07       0        1
+#> slope_14_From112To158 -6.753e+03  5.371e+08       0        1
+#> mean_15_From271To301   2.885e+02  6.415e+07       0        1
+#> sd_15_From271To301    -5.435e+01  4.017e+06       0        1
+#> slope_15_From271To301 -1.016e+03  1.349e+08       0        1
+#> mean_16_From281To288   2.501e+00  1.289e+06       0        1
+#> sd_16_From281To288     1.187e+02  3.891e+06       0        1
+#> slope_16_From281To288  3.478e+02  1.042e+07       0        1
+#> mean_17_From18To245    3.809e+03  4.885e+08       0        1
+#> sd_17_From18To245      2.181e+02  2.593e+07       0        1
+#> slope_17_From18To245  -1.694e+05  1.837e+10       0        1
 #> 
 #> (Dispersion parameter for binomial family taken to be 1)
 #> 
 #>     Null deviance: 2.0794e+02  on 149  degrees of freedom
-#> Residual deviance: 1.2420e-09  on  98  degrees of freedom
+#> Residual deviance: 1.2585e-09  on  98  degrees of freedom
 #> AIC: 104
 #> 
 #> Number of Fisher Scoring iterations: 25
 ```
 
 ``` r
-featurized_test <- featurize_df(FreezerRegularTrain_TEST, trained_tsobj, verbose = FALSE)
+featurized_test <- featurize_df(FreezerRegularTrain_TEST, trained_tsobj, verbose = FALSE, tree_idx = 1)
 preds <- predict(glm_model, featurized_test, type = "response")
 preds <- as.numeric(preds > 0.5) + 1
+featurized_test$target <- FreezerRegularTrain_TEST$target
 table(preds, featurized_test$target)
 #>      
 #> preds    1    2
-#>     1 1418   28
-#>     2    7 1397
+#>     1 1415   17
+#>     2   10 1408
 ```

@@ -4,7 +4,7 @@
 \alias{predict.tsforest}
 \title{Predict Time Series Forest}
 \usage{
-\method{predict}{tsforest}(model, newdata = NULL, verbose = TRUE, ...)
+\method{predict}{tsforest}(model, newdata = NULL, verbose = FALSE, ...)
 }
 \arguments{
 \item{model}{A time series forest model object}

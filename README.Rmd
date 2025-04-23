@@ -39,14 +39,14 @@ The package is pretty easy to use! Here's a simple example:
 library(tsforest)
 data("FreezerRegularTrain_TRAIN")
 data("FreezerRegularTrain_TEST")
-model <- tsforest(FreezerRegularTrain_TRAIN, target = "target")
+model <- tsforest(FreezerRegularTrain_TRAIN, target = "target", n_trees = 50, verbose = FALSE)
 print(model)
 ```
 
 Predictions use the standard S3 predict method, and return a vector of predictions:
 
 ```{r predict_model_1}
-preds <- predict(model, FreezerRegularTrain_TEST)
+preds <- predict(model, FreezerRegularTrain_TEST, verbose = FALSE)
 table(preds$predictions, FreezerRegularTrain_TEST$target)
 ```
 
@@ -56,15 +56,15 @@ There's also a more experimental (and not at all theoretically grounded!) functi
 model <- tsforest(FreezerRegularTrain_TRAIN, 
                   importance = 'permutation', 
                   verbose = FALSE)
-intervalwise_variable_importance(model, summary_function = sum)
+intervalwise_variable_importance(model, summary_function = mean)
 ```
 
 You can also plot an individual example using the function, where the example will be scaled correctly to the importance values:
 
 ```{r intervalwise_with_example}
 intervalwise_variable_importance(model, 
-                                 summary_function = sum, 
-                                 optional_example_rownumber = 1)
+                                 summary_function = mean, 
+                                 optional_example_rownumber = 2)
 ```
 
 We implement random forest here for convenience, but the bag of features used by Time Series Forest can be used by other models - `tsforest::new_tsforest()` and `tsforest::featurized_df` allow you to apply the features using your own models. This interface isn't perfect, so it may change. Here, in slightly goofy example, we use logistic regression instead of random forests:
@@ -72,16 +72,18 @@ We implement random forest here for convenience, but the bag of features used by
 ```{r}
 data("FreezerRegularTrain_TRAIN")
 data("FreezerRegularTrain_TEST")
-trained_tsobj <- new_tsforest(FreezerRegularTrain_TRAIN, target = "target", min_length = 2)
-featurized_train <- featurize_df(FreezerRegularTrain_TRAIN, trained_tsobj, verbose = FALSE)
+trained_tsobj <- new_tsforest(FreezerRegularTrain_TRAIN, target = "target", min_length = 2, n_trees = 1)
+featurized_train <- featurize_df(FreezerRegularTrain_TRAIN, trained_tsobj, verbose = FALSE, tree_idx = 1)
+featurized_train$target <- FreezerRegularTrain_TRAIN$target
 glm_model <- glm(target ~ ., data = featurized_train, family = "binomial")
 summary(glm_model)
 ```
 
 ```{r}
-featurized_test <- featurize_df(FreezerRegularTrain_TEST, trained_tsobj, verbose = FALSE)
+featurized_test <- featurize_df(FreezerRegularTrain_TEST, trained_tsobj, verbose = FALSE, tree_idx = 1)
 preds <- predict(glm_model, featurized_test, type = "response")
 preds <- as.numeric(preds > 0.5) + 1
+featurized_test$target <- FreezerRegularTrain_TEST$target
 table(preds, featurized_test$target)
 ```
 
